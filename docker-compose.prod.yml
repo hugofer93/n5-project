@@ -1,0 +1,61 @@
+version: "3.9"
+
+services:
+  postgres:
+    container_name: "n5project_postgres"
+
+  project:
+    container_name: "n5project_project"
+    environment:
+      DEBUG: "false"
+      VIRTUAL_HOST: "project.n5.com"
+      VIRTUAL_PORT: "8000"
+      LETSENCRYPT_HOST: "project.n5.com"
+      LETSENCRYPT_EMAIL: "admin@n5.com"
+    volumes:
+      - "staticfiles:/opt/n5project/staticfiles/"
+    command: >
+      sh -c "poetry install --only main
+      && poetry run python manage.py makemigrations --noinput
+      && poetry run python manage.py migrate --noinput
+      && poetry run python manage.py collectstatic --noinput
+      && poetry run uwsgi --ini utility/uwsgi.ini"
+
+  nginx:
+    container_name: "n5project_nginx"
+    image: "nginxproxy/nginx-proxy:alpine"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - "nginx_certs:/etc/nginx/certs"
+      - "nginx_html:/usr/share/nginx/html:rw"
+      - "staticfiles:/usr/share/nginx/html/staticfiles:ro"
+      - "./utility/nginx-vhost.d:/etc/nginx/vhost.d"
+      - "/var/run/docker.sock:/tmp/docker.sock:ro"
+    depends_on:
+      - "api"
+    restart: "always"
+
+  letsencrypt:
+    container_name: "n5project_letsencrypt"
+    image: "nginxproxy/acme-companion:2.2"
+    environment:
+      DEFAULT_EMAIL: "admin@n5.com"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "nginx_certs:/etc/nginx/certs"
+      - "nginx_html:/usr/share/nginx/html:rw"
+      - "./utility/nginx-vhost.d:/etc/nginx/vhost.d"
+    volumes_from:
+      - "nginx"
+    depends_on:
+      - "nginx"
+    restart: "always"
+
+
+volumes:
+  staticfiles: {}
+  nginx_certs: {}
+  nginx_html: {}
+  nginx_vhost: {}
