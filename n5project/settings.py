@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
+from datetime import timedelta
 from distutils.util import strtobool
 from os import environ as os_environ
 from pathlib import Path
@@ -52,6 +53,7 @@ DEBUG_APPS = [] if not DEBUG else [
 ]
 
 THIRD_PARTY_APPS = [
+    'colorfield',
     'rest_framework',
     'drf_spectacular',
 ]
@@ -59,6 +61,7 @@ THIRD_PARTY_APPS = [
 LOCAL_APPS = [
     'n5project.apps.core',
     'n5project.apps.utils',
+    'n5project.apps.documents',
     'n5project.apps.api',
 ]
 
@@ -83,8 +86,8 @@ MIDDLEWARE += [] if not DEBUG else [
 
 REST_FRAMEWORK = {
     'DEFAULT_PARSER_CLASSES': [
-        'drf_ujson.parsers.UJSONParser',
         'djangorestframework_camel_case.parser.CamelCaseJSONParser',
+        'drf_ujson.parsers.UJSONParser',
     ],
     'DEFAULT_RENDERER_CLASSES': [
         'djangorestframework_camel_case.render.CamelCaseJSONRenderer',
@@ -94,6 +97,12 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS':
         'rest_framework.pagination.LimitOffsetPagination',
     'PAGE_SIZE': 15,
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
     'DEFAULT_VERSIONING_CLASS':
         'rest_framework.versioning.NamespaceVersioning',
     'DEFAULT_VERSION': 'api-v1',
@@ -114,6 +123,15 @@ SPECTACULAR_SETTINGS = {
     'TITLE': 'N5 API',
     'DESCRIPTION': 'N5 REST API',
     'VERSION': '1.0.0',
+}
+
+
+# Django Rest Framework SimpleJWT
+# https://django-rest-framework-simplejwt.readthedocs.io/en/latest/settings.html
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(hours=4),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
 }
 
 

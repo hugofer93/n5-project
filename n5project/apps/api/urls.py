@@ -5,11 +5,17 @@ from drf_spectacular.views import (
     SpectacularSwaggerView,
 )
 
+from n5project.apps.api.auth import urls as auth_urls
+from n5project.apps.api.documents import urls as documents_urls
+
 
 app_name = 'api'
 
 
-urlpatterns = []
+urlpatterns = [
+    path('auth/', include(auth_urls, namespace='auth')),
+    path('documents/', include(documents_urls, namespace='documents')),
+]
 
 
 docs_urlpatterns = [

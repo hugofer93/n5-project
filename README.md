@@ -13,6 +13,7 @@ This is a REST API with [Django](https://docs.djangoproject.com/en/3.2/), [Djang
 * [Overview](#n5-project)
 * [Main Dependencies](#Main-Dependencies)
 * [Project Configuration](#Project-Configuration)
+* [Architecture Proposal](PROPOSAL.md#aws-deployment)
 
 
 # Main Dependencies
